@@ -1,25 +1,25 @@
 /**
  * Open Module Declaration
- *
+ * <p>
  * This demonstrates the 'open module' syntax which opens the ENTIRE module
  * for deep reflection at runtime.
- *
+ * <p>
  * OPEN MODULE vs OPENS:
- *
+ * <p>
  * 'open module com.jpms.open':
  *   - Opens ALL packages in the module for reflection
  *   - You cannot use 'opens' statements inside an open module
  *   - Equivalent to having 'opens' for every package
- *
+ * <p>
  * 'opens com.jpms.some.package':
  *   - Opens only SPECIFIC packages for reflection
  *   - Provides more fine-grained control
- *
+ * <p>
  * Use 'open module' when:
  *   - Your module is heavily used by reflection-based frameworks
  *   - You want to simplify module descriptors for library modules
  *   - All your classes need to be reflectively accessible (e.g., entity modules)
- *
+ * <p>
  * Use 'opens' when:
  *   - You want to restrict which packages can be reflected upon
  *   - You have sensitive packages that should not be reflectively accessible

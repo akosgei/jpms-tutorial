@@ -84,28 +84,55 @@ mvn exec:java -pl app
 ## Module Dependency Graph
 
 ```
-                    ┌──────────────────┐
-                    │   com.jpms.app   │
-                    └────────┬─────────┘
-                             │
-         ┌───────────────────┼───────────────────┐
-         │                   │                   │
-         ▼                   ▼                   ▼
-┌─────────────────┐ ┌─────────────────┐ ┌─────────────────┐
-│com.jpms.consumer│ │com.jpms.transitive│ │com.jpms.reflection│
-└────────┬────────┘ └────────┬────────┘ └────────┬────────┘
-         │                   │                   │
-         │      requires     │  requires        │
-         │      transitive   │                  │
-         ▼                   ▼                   ▼
-┌─────────────────────────────────────────────────────────┐
-│                     com.jpms.core                       │
-└─────────────────────────────────────────────────────────┘
-         ▲
-         │ provides...with
-         │
-┌─────────────────┐
-│com.jpms.provider│
-└─────────────────┘
+                          ╔═══════════════════╗
+                          ║   com.jpms.app    ║
+                          ║    (main app)     ║
+                          ╚════════╤══════════╝
+                                   │
+            ┌──────────────────────┼──────────────────────┐
+            │ requires             │ requires             │ requires
+            ▼                      ▼                      ▼
+╔═════════════════════╗ ╔════════════════════╗ ╔════════════════════════╗
+║  com.jpms.consumer  ║ ║ com.jpms.transitive║ ║  com.jpms.reflection   ║
+║                     ║ ║                    ║ ║                        ║
+║  uses MessageService║ ║ requires transitive║ ║  opens model           ║
+║  sendSmsMessage()   ║ ║ requires static    ║ ║  opens...to internal   ║
+╚══════════╤══════════╝ ╚═════════╤══════════╝ ╚═══════════╤════════════╝
+           │ requires             │ requires               │ requires
+           │                      │ transitive             │
+           ▼                      ▼                        │
+           ╔════════════════════════════════════╗          │
+           ║           com.jpms.core            ║◄─────────┘
+           ║                                    ║
+           ║  exports api                       ║
+           ║ exports...to internal ─► reflection║
+           ╚════════════════╤═══════════════════╝
+                            │
+                            │ provides MessageService with
+                            │
+           ╔════════════════╧═══════════════════╗
+           ║         com.jpms.provider          ║
+           ║                                    ║
+           ║  ┌─────────────┐ ┌──────────────┐  ║
+           ║  │EmailService │ │ SmsService   │  ║
+           ║  └─────────────┘ └──────────────┘  ║
+           ║  ┌──────────────────────────────┐  ║
+           ║  │  PushNotificationService     │  ║
+           ║  └──────────────────────────────┘  ║
+           ╚════════════════════════════════════╝
+
+           ╔════════════════════════════════════╗
+           ║    com.jpms.open  (open module)    ║
+           ║                                    ║
+           ║  All packages open for reflection  ║
+           ╚════════════════════════════════════╝
+
+┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄
+  Legend
+┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄
+  ──────►  requires          (compile + runtime dependency)
+  ══════►  requires transitive (dependency passed to dependents)
+  ┈┈┈┈┈►  provides...with   (service implementation)
+  ╔═════╗  module
 ```
 

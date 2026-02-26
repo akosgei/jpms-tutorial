@@ -2,11 +2,11 @@ package com.jpms.core.api;
 
 /**
  * MessageService is a Service Provider Interface (SPI).
- *
+ * <p>
  * This interface is exported by the com.jpms.core module and can be:
  * - Implemented by service providers (using 'provides...with')
  * - Consumed by service consumers (using 'uses')
- *
+ * <p>
  * The ServiceLoader API will discover implementations at runtime.
  */
 public interface MessageService {

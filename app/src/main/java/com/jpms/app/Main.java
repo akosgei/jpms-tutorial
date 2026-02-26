@@ -84,6 +84,9 @@ public class Main {
 
         // Send using best service
         client.sendWithBestService("admin@example.com", "Priority message");
+
+        //send sms message using a specific provider (if available)
+        client.sendSmsMessage("254-555-1234", "This is an SMS message");
     }
 
     /**
