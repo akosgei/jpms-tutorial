@@ -103,6 +103,39 @@ public class MessageClient {
     }
 
     /**
+     * Sends an event message using the EventService (Provider Method Pattern).
+     * <p>
+     * This method demonstrates consuming a service that was registered using
+     * the Provider Method Pattern. The EventServiceProvider.provider() method
+     * will be called by ServiceLoader to obtain the EventService instance.
+     * <p>
+     * Because EventServiceProvider uses a singleton pattern, calling this method
+     * multiple times will use the same EventService instance, which can be
+     * observed by the instance ID and message count in the output.
+     *
+     * @param recipient the event recipient/topic
+     * @param message   the event payload
+     */
+    public void sendEventMessage(String recipient, String message) {
+        System.out.println("\n=== Sending Event Message ===");
+        Optional<MessageService> eventService = services.stream()
+                .filter(service -> service.getServiceName().contains("Event Service"))
+                .findFirst();
+
+        if (eventService.isPresent()) {
+            MessageService service = eventService.get();
+            System.out.println("Selected: " + service.getServiceName());
+            System.out.println("Note: This service uses the Provider Method Pattern");
+            System.out.println("      EventServiceProvider.provider() returns a singleton instance");
+            service.sendMessage(recipient, message);
+            return;
+        }
+
+        System.out.println("Event service not available!");
+        System.out.println("Make sure EventServiceProvider is registered in module-info.java");
+    }
+
+    /**
      * Gets the count of available services.
      *
      * @return number of discovered services

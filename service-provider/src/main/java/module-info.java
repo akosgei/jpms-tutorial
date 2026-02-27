@@ -17,9 +17,12 @@ module com.jpms.provider {
     // PROVIDES...WITH DIRECTIVE
     // Registers implementations of the MessageService interface
     // Multiple implementations can be provided for the same interface
+    //
+    // Note: EventServiceProvider uses the Provider Method Pattern
+    // It has a static provider() method that returns the actual service instance
     provides com.jpms.core.api.MessageService with
         com.jpms.provider.EmailService,
         com.jpms.provider.SmsService,
-        com.jpms.provider.PushNotificationService;
+        com.jpms.provider.PushNotificationService,
+        com.jpms.provider.EventServiceProvider;
 }
-

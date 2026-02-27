@@ -87,6 +87,15 @@ public class Main {
 
         //send sms message using a specific provider (if available)
         client.sendSmsMessage("254-555-1234", "This is an SMS message");
+
+        // Demonstrate Provider Method Pattern with EventService
+        // This will use EventServiceProvider.provider() to get the service instance
+        System.out.println("\n--- Provider Method Pattern Demonstration ---");
+        client.sendEventMessage("notification.topic", "First event message");
+
+        // Call again to demonstrate singleton behavior
+        client.sendEventMessage("notification.topic", "Second event message");
+        System.out.println("Note: Both calls use the same EventService instance (same instance ID)");
     }
 
     /**
