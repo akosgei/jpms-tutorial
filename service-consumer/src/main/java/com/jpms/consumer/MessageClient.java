@@ -68,9 +68,8 @@ public class MessageClient {
      *
      * @param recipient the message recipient
      * @param message   the message content
-     * @return true if message was sent
      */
-    public boolean sendWithBestService(String recipient, String message) {
+    public void sendWithBestService(String recipient, String message) {
         System.out.println("\n=== Sending with Best Service ===");
         Optional<MessageService> bestService = services.stream()
                 .max(Comparator.comparingInt(MessageService::getPriority));
@@ -78,14 +77,13 @@ public class MessageClient {
         if (bestService.isPresent()) {
             MessageService service = bestService.get();
             System.out.println("Selected: " + service.getServiceName());
-            return service.sendMessage(recipient, message);
+            service.sendMessage(recipient, message);
         } else {
             System.out.println("No service available!");
-            return false;
         }
     }
 
-    public boolean sendSmsMessage(String phoneNumber, String message) {
+    public void sendSmsMessage(String phoneNumber, String message) {
         System.out.println("\n=== Sending SMS Message ===");
         Optional<MessageService> smsService = services.stream()
                 .filter(service -> "SMS Service".equals(service.getServiceName()))
@@ -95,11 +93,11 @@ public class MessageClient {
             MessageService service = smsService.get();
             System.out.println("Selected: " + service.getServiceName());
             String smsMessage = "[SMS] " + message;
-            return service.sendMessage(phoneNumber, smsMessage);
+            service.sendMessage(phoneNumber, smsMessage);
+            return;
         }
 
         System.out.println("SMS service not available!");
-        return false;
     }
 
     /**

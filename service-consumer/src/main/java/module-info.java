@@ -1,11 +1,11 @@
 /**
  * Service Consumer Module
- *
+ * <p>
  * This module demonstrates:
  * - requires: Declares dependency on com.jpms.core
  * - uses: Declares that this module consumes the MessageService
  * - exports: Makes the consumer package available to other modules
- *
+ * <p>
  * The 'uses' directive tells the module system that this module will use
  * ServiceLoader to discover implementations of MessageService.
  */
