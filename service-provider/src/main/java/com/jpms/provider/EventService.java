@@ -6,9 +6,9 @@ import com.jpms.core.api.StringUtils;
 /**
  * EventService is a service implementation for event-based messaging.
  *
- * This implementation is NOT directly registered in module-info.java.
- * Instead, it is instantiated via the provider method pattern using
- * EventServiceProvider.provider() static factory method.
+ * This class uses the Provider Method Pattern directly — no separate provider
+ * class is needed. ServiceLoader detects the public static provider() method
+ * and calls it instead of the constructor.
  *
  * This pattern allows for:
  * - Lazy initialization
@@ -18,15 +18,48 @@ import com.jpms.core.api.StringUtils;
  */
 public class EventService implements MessageService {
 
+    private static volatile EventService singletonInstance;
+    private static int instanceCounter = 0;
+
     private final String instanceId;
     private int messageCount = 0;
 
     /**
-     * Package-private constructor - only accessible to EventServiceProvider
+     * Package-private constructor - not called directly by ServiceLoader.
+     * ServiceLoader uses the provider() method instead.
      */
     EventService(String instanceId) {
         this.instanceId = instanceId;
         System.out.println("[EVENT SERVICE] Initialized with ID: " + instanceId);
+    }
+
+    /**
+     * Provider method called by ServiceLoader.
+     * <p>
+     * This method MUST be:
+     * - public
+     * - static
+     * - named "provider"
+     * - return type matching the service interface (MessageService)
+     * - have no parameters
+     * <p>
+     * Because this method exists, ServiceLoader will never touch the constructor,
+     * so the constructor can be any visibility.
+     *
+     * @return a singleton MessageService instance
+     */
+    public static MessageService provider() {
+        if (singletonInstance == null) {
+            synchronized (EventService.class) {
+                if (singletonInstance == null) {
+                    instanceCounter++;
+                    String instanceId = "EVT-" + instanceCounter + "-" + System.currentTimeMillis();
+                    singletonInstance = new EventService(instanceId);
+                    System.out.println("[EVENT SERVICE] Created singleton instance");
+                }
+            }
+        }
+        return singletonInstance;
     }
 
     @Override

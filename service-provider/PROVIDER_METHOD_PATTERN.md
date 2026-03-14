@@ -49,6 +49,13 @@ The provider method MUST be:
 - **return type** - must match the service interface (MessageService)
 - **no parameters** - takes no arguments
 
+## ServiceLoader Instantiation Rules
+
+These rules determine how ServiceLoader obtains a service instance:
+
+- **If a class has a `public static provider()` method** → ServiceLoader calls that method, and the constructor can be **any visibility** (private, package-private, or public)
+- **If a class has no `public static provider()` method** → ServiceLoader requires a **public no-arg constructor** and calls it directly
+
 ## Benefits of Provider Method Pattern
 
 1. **Lazy Initialization** - Service created only when requested

@@ -2,11 +2,7 @@ package com.jpms.consumer;
 
 import com.jpms.core.api.MessageService;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
-import java.util.ServiceLoader;
+import java.util.*;
 
 /**
  * MessageClient demonstrates the 'uses' directive and ServiceLoader API.
@@ -20,14 +16,28 @@ import java.util.ServiceLoader;
 public class MessageClient {
 
     private final List<MessageService> services;
+    ServiceLoader<MessageService> loader;
 
     public MessageClient() {
         // ServiceLoader.load() discovers all providers on the module path
         // that have declared: provides MessageService with ...
         this.services = new ArrayList<>();
-        ServiceLoader<MessageService> loader = ServiceLoader.load(MessageService.class);
-        loader.forEach(services::add);
+        loader = ServiceLoader.load(MessageService.class);
+
+
+        for(MessageService instance: loader){
+            //instance.sendMessage(t)
+        }
+
+        // loader.forEach(services::add); // implements Iterable<MessageService> while (iterator.hasNext()) {
+        java.util.Iterator<MessageService> iterator = ServiceLoader.load(MessageService.class).iterator();
+
+        while (iterator.hasNext()) {
+            services.add(iterator.next());
+            // iterator.next().sendMessage(t) , this is also a way to consume the service while loading it, but we want to keep the list of services for later use
+        }
     }
+
 
     /**
      * Lists all available message services discovered via ServiceLoader.
@@ -57,10 +67,11 @@ public class MessageClient {
      */
     public void broadcastMessage(String recipient, String message) {
         System.out.println("\n=== Broadcasting Message ===");
-        for (MessageService service : services) {
-            System.out.println("\nUsing: " + service.getServiceName());
-            service.sendMessage(recipient, message);
-        }
+        loader.stream()
+                .map(messageServiceProvider -> messageServiceProvider.get())
+                .peek(messageService -> System.out.println("\nUsing service" + messageService))
+                .forEach(messageServiceProvider -> messageServiceProvider.sendMessage(recipient, message));
+
     }
 
     /**
@@ -71,16 +82,18 @@ public class MessageClient {
      */
     public void sendWithBestService(String recipient, String message) {
         System.out.println("\n=== Sending with Best Service ===");
-        Optional<MessageService> bestService = services.stream()
-                .max(Comparator.comparingInt(MessageService::getPriority));
 
-        if (bestService.isPresent()) {
-            MessageService service = bestService.get();
-            System.out.println("Selected: " + service.getServiceName());
-            service.sendMessage(recipient, message);
-        } else {
-            System.out.println("No service available!");
-        }
+        Optional<MessageService> bestServiceProvider = loader.stream()
+                .map(ServiceLoader.Provider::get).max(
+                        Comparator.comparingInt(MessageService::getPriority)
+                );
+
+        bestServiceProvider.ifPresentOrElse(
+                service -> {
+                    System.out.println("The best service provider is:" + service.getServiceName());
+                    service.sendMessage(recipient, message);
+                }, () -> System.out.println("No service available!")
+        );
     }
 
     public void sendSmsMessage(String phoneNumber, String message) {
